@@ -5,10 +5,10 @@ router.get('/', (req, res) => {
     res.send('Hello!')
 })
 
-router.get("/now_playing", Controller.getNowPlaying)
-router.get("/popular", Controller.getPopular)
-router.get("/top_rated", Controller.getTopRated)
-router.get("/upcoming", Controller.getUpcoming)
+router.get("/movies/now_playing", Controller.getNowPlayingMovie)
+router.get("/movies/popular", Controller.getPopularMovie)
+router.get("/movies/top_rated", Controller.getTopRatedMovie)
+router.get("/movies/upcoming", Controller.getUpcomingMovie)
 router.get("/movie/search", Controller.getMovieSearch)
 router.get("/movie/:id", Controller.getMovieDetail)
 
