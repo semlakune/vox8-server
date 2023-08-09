@@ -27,7 +27,7 @@ class Controllers {
         return await instance.get(endpoint, { params });
     }
 
-    static async getResults(req, res, endpoint) {
+    static async getResults(req, res, endpoint, next) {
         try {
             const { page } = req.query;
             const { group } = req.params;
@@ -40,11 +40,11 @@ class Controllers {
 
 
     static getPopular(req, res, next) {
-        return this.getResults(req, res, 'popular', next);
+        return Controllers.getResults(req, res, 'popular', next);
     }
 
     static getTopRated(req, res, next) {
-        return this.getResults(req, res, 'top_rated', next);
+        return Controllers.getResults(req, res, 'top_rated', next);
     }
 
     static async getDetail(req, res, next) {
