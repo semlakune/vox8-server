@@ -1,137 +1,80 @@
-const instance = require('../helpers/axios')
+const instance = require('../helpers/axios');
 
 class Controllers {
-    static async getNowPlayingMovie(req, res, next) {
+    static constructImageUrl(path) {
+        return path ? `https://image.tmdb.org/t/p/original${path}` : null;
+    }
+
+    static mapResults(data) {
+        return data.map(item => {
+            const { id, title, name, poster_path, release_date, vote_average, backdrop_path } = item;
+            const poster = this.constructImageUrl(poster_path);
+            const backdrop = this.constructImageUrl(backdrop_path);
+
+            if (!poster) return null;
+            return {
+                id,
+                title: title || name,
+                poster,
+                backdrop,
+                release_date,
+                vote_average
+            };
+        });
+    }
+
+    static async fetchData(endpoint, params) {
+        return await instance.get(endpoint, { params });
+    }
+
+    static async getResults(req, res, endpoint) {
         try {
-            const {page} = req.query
-            const moviesNowPlaying = await instance.get('/movie/now_playing', {
-                params: {page}
-            })
-
-            const {results} = moviesNowPlaying.data
-            const movies = results.map(movie => {
-                const {id, title, poster_path, release_date, vote_average, backdrop_path} = movie
-                const poster = poster_path ? `https://image.tmdb.org/t/p/original${poster_path}` : null
-                const backdrop = backdrop_path ? `https://image.tmdb.org/t/p/original${backdrop_path}` : null
-
-                return {id, title, poster, backdrop, release_date, vote_average}
-            })
-
-            res.status(200).json({...moviesNowPlaying.data, results: movies})
-
+            const { page } = req.query;
+            const { group } = req.params;
+            const response = await this.fetchData(`/${group}/${endpoint}`, { page });
+            res.status(200).json({ ...response.data, results: this.mapResults(response.data.results) });
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 
-    static async getPopularMovie(req, res, next) {
+    static getPopular(req, res, next) {
+        return this.getResults(req, res, 'popular', next);
+    }
+
+    static getTopRated(req, res, next) {
+        return this.getResults(req, res, 'top_rated', next);
+    }
+
+    static async getDetail(req, res, next) {
         try {
-            const {page} = req.query
-            const moviesPopular = await instance.get('/movie/popular', {
-                params: {page}
-            })
-            const {results} = moviesPopular.data
-            const movies = results.map(movie => {
-                const {id, title, poster_path, release_date, vote_average, backdrop_path} = movie
-                const poster = poster_path ? `https://image.tmdb.org/t/p/original${poster_path}` : null
-                const backdrop = backdrop_path ? `https://image.tmdb.org/t/p/original${backdrop_path}` : null
+            const { id, group } = req.params;
+            const { data } = await this.fetchData(`/${group}/${id}`);
+            const poster = this.constructImageUrl(data.poster_path);
+            const backdrop = this.constructImageUrl(data.backdrop_path);
+            const { title, release_date, vote_average, overview, genres, runtime } = data;
 
-                return {id, title, poster, backdrop, release_date, vote_average}
-            })
-
-            res.status(200).json({...moviesPopular.data, results: movies})
+            res.status(200).json({ id, title, poster, backdrop, release_date, vote_average, overview, genres, runtime });
 
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 
-    static async getTopRatedMovie(req, res, next) {
+    static async getSearch(req, res, next) {
         try {
-            const {page} = req.query
-            const moviesTopRated = await instance.get('/movie/top_rated', {
-                params: {page}
-            })
+            const { query, page } = req.query;
+            const { group } = req.params;
+            const response = await this.fetchData(`/search/${group}`, { query, page });
 
-            const {results} = moviesTopRated.data
-            const movies = results.map(movie => {
-                const {id, title, poster_path, release_date, vote_average, backdrop_path} = movie
-                const poster = poster_path ? `https://image.tmdb.org/t/p/original${poster_path}` : null
-                const backdrop = backdrop_path ? `https://image.tmdb.org/t/p/original${backdrop_path}` : null
+            if (!response.data.results.length) throw { name: 'not_found' };
 
-                return {id, title, poster, backdrop, release_date, vote_average}
-            })
-
-            res.status(200).json({...moviesTopRated.data, results: movies})
+            res.status(200).json({ ...response.data, results: this.mapResults(response.data.results) });
 
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
-
-    static async getUpcomingMovie(req, res, next) {
-        try {
-            const {page} = req.query
-            const moviesUpcoming = await instance.get('/movie/upcoming', {
-                params: {page}
-            })
-            const {results} = moviesUpcoming.data
-            const movies = results.map(movie => {
-                const {id, title, poster_path, backdrop_path, release_date, vote_average} = movie
-                const poster = poster_path ? `https://image.tmdb.org/t/p/original${poster_path}` : null
-                const backdrop = backdrop_path ? `https://image.tmdb.org/t/p/original${backdrop_path}` : null
-
-                return {id, title, poster, backdrop, release_date, vote_average}
-            })
-
-            res.status(200).json({...moviesUpcoming.data, results: movies})
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    static async getMovieDetail(req, res, next) {
-        try {
-            const {id} = req.params
-            const {data} = await instance.get(`/movie/${id}`)
-
-            const {title, poster_path, backdrop_path, release_date, vote_average, overview, genres, runtime} = data
-            const poster = poster_path ? `https://image.tmdb.org/t/p/original${poster_path}` : null
-            const backdrop = backdrop_path ? `https://image.tmdb.org/t/p/original${backdrop_path}` : null
-
-            res.status(200).json({id, title, poster, backdrop, release_date, vote_average, overview, genres, runtime})
-
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    static async getMovieSearch(req, res, next) {
-        try {
-            const {query, page} = req.query
-            const movieSearch = await instance.get('/search/movie', {
-                params: {query, page}
-            })
-
-            const {results} = movieSearch.data
-
-            if (!results.length) throw {name: 'not_found'}
-
-            const movies = results.map(movie => {
-                const {id, title, poster_path, release_date, vote_average} = movie
-                const poster = poster_path ? `https://image.tmdb.org/t/p/original${poster_path}` : null
-
-                return {id, title, poster, release_date, vote_average}
-            })
-
-            res.status(200).json({...movieSearch.data, results: movies})
-
-        } catch (error) {
-            next(error)
-        }
-    }
-
-
 }
 
-module.exports = Controllers
+module.exports = Controllers;
