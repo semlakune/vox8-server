@@ -88,6 +88,17 @@ class Controllers {
             next(error);
         }
     }
+
+    static async getSimilar(req, res, next) {
+        try {
+            const { id, group } = req.params;
+            const { page } = req.query;
+            const response = await Controllers.fetchData(`/${group}/${id}/similar`, { page });
+            res.status(200).json({ ...response.data, results: Controllers.mapResults(response.data.results) });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = Controllers;
