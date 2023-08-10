@@ -53,9 +53,9 @@ class Controllers {
             const { data } = await Controllers.fetchData(`/${group}/${id}`);
             const poster = Controllers.constructImageUrl(data.poster_path);
             const backdrop = Controllers.constructImageUrl(data.backdrop_path);
-            const { title, release_date, vote_average, overview, genres, runtime } = data;
+            const { title, name, release_date, vote_average, overview, genres, runtime } = data;
 
-            res.status(200).json({ id, title, poster, backdrop, release_date, vote_average, overview, genres, runtime });
+            res.status(200).json({ id, title: title || name, poster, backdrop, release_date, vote_average, overview, genres, runtime });
 
         } catch (error) {
             next(error);
