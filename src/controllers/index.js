@@ -18,7 +18,7 @@ class Controllers {
                 poster,
                 backdrop,
                 release_date,
-                vote_average
+                vote_average: Number(vote_average.toFixed(1))
             };
         })
             .filter(Boolean);
