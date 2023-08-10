@@ -10,6 +10,7 @@ class Controllers {
             const { id, title, name, poster_path, release_date, vote_average, backdrop_path } = item;
             const poster = this.constructImageUrl(poster_path);
             const backdrop = this.constructImageUrl(backdrop_path);
+            let formattedVote = parseFloat(vote_average).toFixed(1);
 
             if (!poster) return null;
             return {
@@ -18,7 +19,7 @@ class Controllers {
                 poster,
                 backdrop,
                 release_date,
-                vote_average: Number(vote_average.toFixed(1))
+                vote_average: formattedVote
             };
         })
             .filter(Boolean);
