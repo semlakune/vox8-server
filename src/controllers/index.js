@@ -20,7 +20,8 @@ class Controllers {
                 release_date,
                 vote_average
             };
-        });
+        })
+            .filter(Boolean);
     }
 
     static async fetchData(endpoint, params) {
