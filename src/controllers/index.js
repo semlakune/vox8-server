@@ -7,7 +7,7 @@ class Controllers {
 
     static mapResults(data) {
         return data.map(item => {
-            const { id, title, name, poster_path, release_date, vote_average, backdrop_path } = item;
+            const { id, title, name, poster_path, release_date, vote_average, backdrop_path, media_type } = item;
             const poster = this.constructImageUrl(poster_path);
             const backdrop = this.constructImageUrl(backdrop_path);
             let formattedVote = parseFloat(vote_average).toFixed(1);
@@ -19,7 +19,8 @@ class Controllers {
                 poster,
                 backdrop,
                 release_date,
-                vote_average: formattedVote
+                vote_average: formattedVote,
+                group: media_type || ""
             };
         })
             .filter(Boolean);
@@ -86,7 +87,6 @@ class Controllers {
             const response = await Controllers.fetchData(`/trending/all/${time}`, { page });
             res.status(200).json({ ...response.data, results: Controllers.mapResults(response.data.results) });
         } catch (error) {
-            console.log(error);
             next(error);
         }
     }
