@@ -5,6 +5,7 @@ router.get('/', (req, res) => {
     res.send('Hello!')
 })
 
+router.get("/getDominantColor", Controller.getDominantColor)
 router.get("/trending/all/:time", Controller.getTrending)
 router.get("/popular/:group", Controller.getPopular)
 router.get("/top_rated/:group", Controller.getTopRated)

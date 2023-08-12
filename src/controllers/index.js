@@ -1,4 +1,6 @@
 const instance = require('../helpers/axios');
+const { getColor } = require('colorthief');
+
 
 class Controllers {
     static constructImageUrl(path) {
@@ -40,7 +42,6 @@ class Controllers {
             next(error);
         }
     }
-
 
     static getPopular(req, res, next) {
         return Controllers.getResults(req, res, 'popular', next);
@@ -98,6 +99,17 @@ class Controllers {
             const response = await Controllers.fetchData(`/${group}/${id}/similar`, { page });
             res.status(200).json({ ...response.data, results: Controllers.mapResults(response.data.results) });
         } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getDominantColor(req, res, next) {
+        try {
+            const { imagePath } = req.query;
+            const dominantColor = await getColor(imagePath);
+            res.status(200).json({ dominantColor });
+        } catch (error) {
+            console.log(error);
             next(error);
         }
     }
