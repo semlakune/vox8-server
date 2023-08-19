@@ -7,7 +7,7 @@ class Controllers {
         return path ? `https://image.tmdb.org/t/p/original${path}` : null;
     }
 
-    static mapResults(data) {
+    static  mapResults(data) {
         return data.map(item => {
             const { id, title, name, poster_path, release_date, vote_average, backdrop_path, media_type } = item;
             const poster = this.constructImageUrl(poster_path);
@@ -69,8 +69,7 @@ class Controllers {
     static async getSearch(req, res, next) {
         try {
             const { query, page } = req.query;
-            const { group } = req.params;
-            const response = await Controllers.fetchData(`/search/${group}`, { query, page });
+            const response = await Controllers.fetchData(`/search/multi`, { query, page });
 
             if (!response.data.results.length) throw { name: 'not_found' };
 
