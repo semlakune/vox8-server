@@ -113,6 +113,46 @@ class Controllers {
             next(error);
         }
     }
+
+    static async getAiringToday(req, res, next) {
+        try {
+            const { page } = req.query;
+            const response = await Controllers.fetchData(`/tv/airing_today`, { page });
+            res.status(200).json({ ...response.data, results: Controllers.mapResults(response.data.results) });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getOnTheAir(req, res, next) {
+        try {
+            const { page } = req.query;
+            const response = await Controllers.fetchData(`/tv/on_the_air`, { page });
+            res.status(200).json({ ...response.data, results: Controllers.mapResults(response.data.results) });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getNowPlaying(req, res, next) {
+        try {
+            const { page, region } = req.query;
+            const response = await Controllers.fetchData(`/movie/now_playing`, { page, region });
+            res.status(200).json({ ...response.data, results: Controllers.mapResults(response.data.results) });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getUpcoming(req, res, next) {
+        try {
+            const { page, region } = req.query;
+            const response = await Controllers.fetchData(`/movie/upcoming`, { page, region });
+            res.status(200).json({ ...response.data, results: Controllers.mapResults(response.data.results) });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = Controllers;
